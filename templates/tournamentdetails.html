@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Details</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            scroll-behavior: smooth;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .sidebar-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #e0e0e0;
+        }
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .section {
+            margin-bottom: 50px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tournament-banner {
+            width: 100%;
+            height: 200px;
+            background-color: #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .prize-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .bracket {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-top: 20px;
+        }
+        .bracket-round {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 20px;
+        }
+        .bracket-match {
+            width: 150px;
+            height: 60px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        label, input, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item" onclick="scrollToSection('banner')">Tournament Banner</div>
+            <div class="sidebar-item" onclick="scrollToSection('details')">Details</div>
+            <div class="sidebar-item" onclick="scrollToSection('requirements')">Requirements</div>
+            <div class="sidebar-item" onclick="scrollToSection('prizes')">Prizes</div>
+            <div class="sidebar-item" onclick="scrollToSection('brackets')">Brackets</div>
+            <div class="sidebar-item" onclick="scrollToSection('registration')">Registration</div>
+        </div>
+        <div class="main-content">
+            <div id="banner" class="section">
+                <div class="tournament-banner">
+                    Summer Gaming Championship 2023
+                </div>
+            </div>
+            <div id="details" class="section">
+                <h2>Tournament Details</h2>
+                <p><strong>Date:</strong> August 15-20, 2023</p>
+                <p><strong>Location:</strong> Virtual Event</p>
+                <p><strong>Game:</strong> Legendary Legends</p>
+                <p><strong>Format:</strong> 5v5 Team Battle</p>
+                <p><strong>Participants:</strong> 32 Teams</p>
+            </div>
+            <div id="requirements" class="section">
+                <h2>Requirements</h2>
+                <ul>
+                    <li>All team members must be at least 16 years old</li>
+                    <li>Teams must have 5 main players and up to 2 substitutes</li>
+                    <li>All participants must have a valid game account</li>
+                    <li>Stable internet connection required</li>
+                    <li>Participants must agree to the tournament rules and code of conduct</li>
+                </ul>
+            </div>
+            <div id="prizes" class="section">
+                <h2>Prize Pool</h2>
+                <div class="prize-item">
+                    <span>1st Place:</span>
+                    <span>$50,000</span>
+                </div>
+                <div class="prize-item">
+                    <span>2nd Place:</span>
+                    <span>$25,000</span>
+                </div>
+                <div class="prize-item">
+                    <span>3rd Place:</span>
+                    <span>$10,000</span>
+                </div>
+                <div class="prize-item">
+                    <span>4th Place:</span>
+                    <span>$5,000</span>
+                </div>
+            </div>
+            <div id="brackets" class="section">
+                <h2>Tournament Brackets</h2>
+                <label for="numTeams">Number of Teams:</label>
+                <input type="number" id="numTeams" min="2" max="64" value="32">
+                <button onclick="generateBracket()">Generate Bracket</button>
+                <div id="bracketContainer" class="bracket"></div>
+            </div>
+            <div id="registration" class="section">
+                <h2>Team Registration</h2>
+                <form id="registrationForm">
+                    <label for="teamName">Team Name:</label>
+                    <input type="text" id="teamName" required>
+                    
+                    <label for="captainName">Captain Name:</label>
+                    <input type="text" id="captainName" required>
+                    
+                    <label for="email">Contact Email:</label>
+                    <input type="email" id="email" required>
+                    
+                    <label for="players">Player Names (one per line):</label>
+                    <textarea id="players" rows="6" required></textarea>
+                    
+                    <input type="submit" value="Register Team">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateBracket() {
+            const numTeams = parseInt(document.getElementById('numTeams').value);
+            const bracketContainer = document.getElementById('bracketContainer');
+            bracketContainer.innerHTML = '';
+
+            let currentRoundTeams = numTeams;
+            let round = 1;
+
+            while (currentRoundTeams > 1) {
+                const bracketRound = document.createElement('div');
+                bracketRound.className = 'bracket-round';
+                bracketRound.innerHTML = `<h3>Round ${round}</h3>`;
+
+                for (let i = 0; i < currentRoundTeams / 2; i++) {
+                    const match = document.createElement('div');
+                    match.className = 'bracket-match';
+                    match.textContent = round === 1 ? `Match ${i + 1}` : 'TBD';
+                    bracketRound.appendChild(match);
+                }
+
+                bracketContainer.appendChild(bracketRound);
+                currentRoundTeams = Math.ceil(currentRoundTeams / 2);
+                round++;
+            }
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('Team registration submitted successfully!');
+        });
+
+        // Intersection Observer for section animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Generate initial bracket
+        generateBracket();
+    </script>
+</body>
+</html>

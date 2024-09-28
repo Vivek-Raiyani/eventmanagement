@@ -1,0 +1,179 @@
+<!-- facility_registration.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility Registration</title>
+    <style>
+        /* CSS styles for the form */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="time"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Register a Facility</h2>
+        
+        <!-- Using Django template for form POST -->
+        <form action="{% url 'register_facility' %}" method="post" enctype="multipart/form-data">
+            <!-- CSRF Token for security -->
+            {% csrf_token %}
+            
+            <!-- Facility Name -->
+            <div class="form-group">
+                <label for="name">Facility Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter facility name" required>
+            </div>
+
+            <!-- Facility Location -->
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" placeholder="Enter facility location" required>
+            </div>
+
+            <!-- Zip Code -->
+            <div class="form-group">
+                <label for="zip_code">Zip Code:</label>
+                <input type="text" id="zip_code" name="zip_code" placeholder="Enter facility zip code" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="4" placeholder="Enter facility description" required></textarea>
+            </div>
+
+            <!-- Capacity -->
+            <div class="form-group">
+                <label for="capacity">Capacity:</label>
+                <input type="number" id="capacity" name="capacity" placeholder="Enter facility capacity" required>
+            </div>
+
+            <!-- Open Time -->
+            <div class="form-group">
+                <label for="open_time">Open Time:</label>
+                <input type="time" id="open_time" name="open_time" required>
+            </div>
+
+            <!-- Close Time -->
+            <div class="form-group">
+                <label for="close_time">Close Time:</label>
+                <input type="time" id="close_time" name="close_time" required>
+            </div>
+
+            <!-- Image Uploads with Previews -->
+            <div class="form-group">
+                <label for="image1">Image 1:</label>
+                <input type="file" id="image1" name="image1" accept="image/*" onchange="previewImage(event, 'preview1')">
+                <div class="image-preview" id="preview1"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="image2">Image 2:</label>
+                <input type="file" id="image2" name="image2" accept="image/*" onchange="previewImage(event, 'preview2')">
+                <div class="image-preview" id="preview2"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="image3">Image 3:</label>
+                <input type="file" id="image3" name="image3" accept="image/*" onchange="previewImage(event, 'preview3')">
+                <div class="image-preview" id="preview3"></div>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- JavaScript to handle image previews -->
+    <script>
+        function previewImage(event, previewId) {
+            var previewContainer = document.getElementById(previewId);
+            previewContainer.innerHTML = ""; // Clear previous image preview
+
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const imgElement = document.createElement("img");
+                    imgElement.src = e.target.result;
+                    previewContainer.appendChild(imgElement);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

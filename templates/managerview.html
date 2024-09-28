@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved Facility Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .sidebar-item {
+            padding: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .sidebar-item.active {
+            background-color: #ddd;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .view-selector {
+            margin-bottom: 20px;
+        }
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar-table th, .calendar-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            vertical-align: top;
+        }
+        .calendar-table th {
+            background-color: #f2f2f2;
+        }
+        .booking {
+            background-color: #e6f2ff;
+            margin: 2px 0;
+            padding: 2px;
+            font-size: 0.8em;
+        }
+        .facility-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .maintenance-log {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Space between cards */
+    transition: box-shadow 0.3s ease-in-out;
+    display: flex; /* Allow flexbox for consistent card dimensions */
+    flex-direction: column; /* Stack children vertically */
+    height: 100%; /* Make all cards the same height */
+}
+
+.card-img-top {
+    height: 200px; /* Keep the height for images */
+    object-fit: cover; /* Ensure the image covers the area */
+}
+
+.card-body {
+    flex-grow: 1; /* Allow the body to expand to fill the card */
+}
+
+.card-footer {
+    text-align: right; /* Align footer text to the right */
+}
+
+.row-cols-md-2, .row-cols-lg-4 {
+    display: flex;
+    flex-wrap: wrap; /* Ensure cards wrap properly */
+}
+
+.row-cols-md-2 .col, .row-cols-lg-4 .col {
+    flex: 1 0 45%; /* Adjust this value to control how many cards fit */
+    margin: 10px; /* Space around cards */
+}
+
+    </style>
+</head>
+<body>
+{% include 'navbar.html' %}
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item active" onclick="openTab(event, 'facilitiesTab')">Facilities</div>
+            <div class="sidebar-item" onclick="openTab(event, 'calendarTab')">Calendar View</div>
+            <div class="sidebar-item" onclick="openTab(event, 'bookkeepingTab')">Bookkeeping</div>
+            <div class="sidebar-item" onclick="openTab(event, 'maintenanceTab')">Maintenance Log</div>
+        </div>
+        <div class="main-content">
+    <div id="facilitiesTab" class="tab-content active container py-4">
+
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Airbnb-style Listings</h1>
+            <div class="btn-group" role="group" aria-label="View toggle">
+                <button type="button" class="btn btn-outline-primary" id="gridView">Grid View</button>
+                <button type="button" class="btn btn-outline-primary" id="listView">List View</button>
+            </div>
+        </header>
+
+        <div id="items" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for facility in facility_list %}
+            <div class="col">
+                <a class="card h-100" href="{% url 'details' facility.slug %}" style="text-decoration: none;">
+                    {% if facility.image1 %}
+                    <img src="{{ facility.image1.url }}" class="card-img-top" alt="Listing 1">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ facility.name }}</h5>
+                        <p class="card-text">{{ facility.description }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{ facility.manager }}</small>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h4">Statistics/Analytics</h2>
+            <p>Stats content...</p>
+        </div>
+    </div>
+            <div id="calendarTab" class="tab-content">
+                <h2>Calendar</h2>
+                <div class="view-selector">
+                    <button onclick="changeCalendarView('week')">Week</button>
+                    <button onclick="changeCalendarView('month')">Month</button>
+                </div>
+                <div id="calendarView"></div>
+                {% for book in bookings %}
+                {% if book.confirmed == False %}
+                <div class="booking">
+                    <p><strong>Facility:</strong> {{ book.facility.name }}</p>
+                    <p><strong>Booking Date:</strong> {{ book.booking_date }}</p>
+                    <p><strong>Time Slot:</strong> {{ book.slots.start_time }} - {{ book.slots.end_time }}</p>
+                    <p><strong>Current Status:</strong> {{ book.confirmed|yesno:"Confirmed,Pending,Rejected" }}</p>
+
+                    <!-- Form to update booking status -->
+                    <form action="{% url 'update_booking' book.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Update Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="True" {% if book.confirmed == True %}selected{% endif %}>Confirmed</option>
+                                <option value="False" {% if book.confirmed == False %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            </div>
+
+            <div id="bookkeepingTab" class="tab-content">
+                <h2>Bookkeeping</h2>
+                <div class="financial-section">
+                    <h3>Income</h3>
+                    <ul>
+                        <li>Facility Rentals: $5000</li>
+                        <li>Equipment Rentals: $1000</li>
+                        <li>Memberships: $2000</li>
+                        <li>Special Events: $3000</li>
+                    </ul>
+                </div>
+                <div class="financial-section">
+                    <h3>Expenses</h3>
+                    <ul>
+                        <li>Staff Wages: $4000</li>
+                        <li>Utilities: $1500</li>
+                        <li>Maintenance: $1000</li>
+                        <li>Equipment Purchases: $2000</li>
+                        <li>Insurance: $500</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="maintenanceTab" class="tab-content">
+                <h2>Maintenance Log</h2>
+                <div id="maintenanceLog">
+                    {% for log in maintenance %}
+                    <div class="maintenance-log">
+                        <h3>{{ log.facility.name }}</h3>
+                        <p><strong>Date:</strong> {{ log.date }}</p>
+                        <p><strong>Description:</strong> {{ log.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       
+        
+        const timeSlots = [
+            {% for slot in bookings %}
+            '{{ slot.slots.start_time|time:"H:i A" }}',
+            {% endfor %}
+        ].filter((v, i, a) => a.indexOf(v) === i).sort();
+
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            const sidebarItems = document.getElementsByClassName('sidebar-item');
+            for (let i = 0; i < sidebarItems.length; i++) {
+                sidebarItems[i].classList.remove('active');
+            }
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+/*
+        function changeCalendarView(view) {
+            const calendarView = document.getElementById('calendarView');
+            calendarView.innerHTML = ''; // Clear previous content
+
+            const table = document.createElement('table');
+            table.className = 'calendar-table';
+            
+            // Create header row with dates
+            const headerRow = table.insertRow();
+            const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const currentDate = new Date();
+            const startDate = new Date(currentDate);
+            startDate.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Start from Monday
+
+            for (let i = 0; i < (view === 'week' ? 7 : 28); i++) {
+                const cell = headerRow.insertCell();
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                cell.innerHTML = `${daysOfWeek[i % 7]}<br>${date.getDate()}/${date.getMonth() + 1}`;
+            }
+
+            // Create rows for each time slot
+            timeSlots.forEach(slot => {
+                const row = table.insertRow();
+                const timeCell = row.insertCell();
+                timeCell.textContent = slot;
+                for (let i = 0; i < (view === 'week' ? 7 : 28); i++) {
+                    const cell = row.insertCell();
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    // Add bookings for this slot and date
+                    const bookings = [];
+                    {% for booking in bookings %}
+                    if ('{{ booking.booking_date|date:"Y-m-d" }}' === date.toISOString().split('T')[0] && 
+                        '{{ booking.slots.start_time|time:"H:i A" }}' === slot) {
+                        bookings.push(`<div class="booking">{{ booking.slots.facility.name }}</div>`);
+                    }
+                    {% endfor %}
+                    cell.innerHTML = bookings.join('');
+                }
+            });
+
+            calendarView.appendChild(table);
+
+            if (view === 'month') {
+                calendarView.style.height = '500px';
+                calendarView.style.overflowY = 'scroll';
+            } else {
+                calendarView.style.height = 'auto';
+                calendarView.style.overflowY = 'visible';
+            }
+        }
+*/  
+
+function changeCalendarView(view) {
+    const calendarView = document.getElementById('calendarView');
+    calendarView.innerHTML = ''; // Clear previous content
+
+    const table = document.createElement('table');
+    table.className = 'calendar-table';
+    
+    // Create header row with an empty cell for time slots
+    const headerRow = table.insertRow();
+    headerRow.insertCell(); // Empty cell for time slots
+
+    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const currentDate = new Date();
+    const startDate = new Date(currentDate);
+    startDate.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Start from Monday
+
+    for (let i = 0; i < (view === 'week' ? 7 : 28); i++) {
+        const cell = headerRow.insertCell();
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        cell.innerHTML = `${daysOfWeek[i % 7]}<br>${date.getDate()}/${date.getMonth() + 1}`;
+    }
+
+    // Create rows for each time slot
+    timeSlots.forEach(slot => {
+        const row = table.insertRow();
+        const timeCell = row.insertCell();
+        timeCell.textContent = slot; // Display time in the first cell
+
+        for (let i = 0; i < (view === 'week' ? 7 : 28); i++) {
+            const cell = row.insertCell();
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+
+            // Add bookings for this slot and date
+            const bookings = [];
+            {% for booking in bookings %}
+            if ('{{ booking.booking_date|date:"Y-m-d" }}' === date.toISOString().split('T')[0] && 
+                '{{ booking.slots.start_time|time:"H:i A" }}' === slot) {
+                bookings.push(`<div class="booking" style="background-color:{% if booking.confirmed %}green{% else %}red{% endif %}">{{ booking.facility.name }}</div>`);
+            }
+            {% endfor %}
+            cell.innerHTML = bookings.join('');
+        }
+    });
+
+    calendarView.appendChild(table);
+
+    if (view === 'month') {
+        calendarView.style.height = '500px';
+        calendarView.style.overflowY = 'scroll';
+    } else {
+        calendarView.style.height = 'auto';
+        calendarView.style.overflowY = 'visible';
+    }
+}
+
+
+        // Initialize with week view
+        changeCalendarView('week');
+
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        const itemsContainer = document.getElementById('items');
+
+
+        gridViewBtn.addEventListener('click', () => {
+    itemsContainer.classList.remove('row-cols-md-1');
+    itemsContainer.classList.add('row-cols-md-2', 'row-cols-lg-4');
+    gridViewBtn.classList.add('active');
+    listViewBtn.classList.remove('active');
+});
+
+listViewBtn.addEventListener('click', () => {
+    itemsContainer.classList.remove('row-cols-md-2', 'row-cols-lg-4');
+    itemsContainer.classList.add('row-cols-md-1');
+    listViewBtn.classList.add('active');
+    gridViewBtn.classList.remove('active');
+});
+
+    </script>
+</body>
+</html>

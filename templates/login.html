@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Facility Management - Login/Register</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(0.5);
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .card-img {
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+            object-fit: cover;
+            height: 100%;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+        }
+
+        .nav-pills .nav-link {
+            color: #4CAF50;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .animate__animated {
+            animation-duration: 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Video 
+    <video autoplay muted loop class="bg-video">
+        <source src="1.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    -->
+    {% load static %}
+    <img src="{% static 'images/basketball1.jpg' %}" class="bg-video">
+
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card animate__animated animate__fadeIn">
+                        <div class="row g-0">
+                            <div class="col-md-6 d-none d-md-block">
+                                <img src="{% static 'images/batman.jpg' %}" alt="Sports facility" class="img-fluid card-img">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body p-5">
+                                    <h2 class="text-center mb-5 animate__animated animate__bounceIn">Sports Facility Management</h2>
+                                    <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login" type="button" role="tab" aria-controls="pills-login" aria-selected="true">Login</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button" role="tab" aria-controls="pills-register" aria-selected="false">Register</button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="pills-tabContent">
+                                        <!-- Login Form -->
+                                        <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
+                                            <form method="POST" action="{% url 'login' %}">
+                                                {% csrf_token %}
+                                                <div class="form-floating mb-3">
+                                                    <input type="email" class="form-control" id="loginEmail" name="email" placeholder="name@example.com" required>
+                                                    <label for="loginEmail">Email address</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Password" required>
+                                                    <label for="loginPassword">Password</label>
+                                                </div>
+                                                <div class="d-grid">
+                                                    <button class="btn btn-primary btn-lg animate__animated animate__pulse" type="submit">Login</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- Register Form -->
+                                        <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="pills-register-tab">
+                                            <form method="POST" action="{% url 'register' %}">
+                                                {% csrf_token %}
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="registerName" name="first_name" placeholder="John Doe" required>
+                                                    <label for="registerName">First Name</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="registerName" name="last_name" placeholder="John Doe" required>
+                                                    <label for="registerName">Last Name</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input type="email" class="form-control" id="registerEmail" name="email" placeholder="name@example.com" required>
+                                                    <label for="registerEmail">Email address</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input type="password" class="form-control" id="registerPassword" name="password" placeholder="Password" required>
+                                                    <label for="registerPassword">Password</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" placeholder="Confirm Password" required>
+                                                    <label for="registerConfirmPassword">Confirm Password</label>
+                                                </div>
+                                                <div class="d-grid">
+                                                    <button class="btn btn-primary btn-lg animate__animated animate__pulse" type="submit">Register</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!-- tournament_registration.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Registration</title>
+    <style>
+        /* Styles for the form */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Register a Tournament</h2>
+        
+        <!-- Tournament registration form -->
+        <form action="{% url 'register_tournament' %}" method="post">
+            {% csrf_token %}
+
+            <!-- Tournament Name -->
+            <div class="form-group">
+                <label for="name">Tournament Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter tournament name" required>
+            </div>
+
+            <!-- Max Teams -->
+            <div class="form-group">
+                <label for="max_team">Max Teams:</label>
+                <input type="number" id="max_team" name="max_team" placeholder="Enter maximum number of teams" required>
+            </div>
+
+            <!-- Team Based -->
+            <div class="form-group">
+                <label for="is_team_based">Is Team Based?</label>
+                <select id="is_team_based" name="is_team_based" required>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+
+            <!-- End Date -->
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+            </div>
+
+            <!-- Sport -->
+            <div class="form-group">
+                <label for="sport">Sport:</label>
+                <select id="sport" name="sport" required>
+                    {% for sport in sports %}
+                        <option value="{{ sport.id }}">{{ sport.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Registration Fee -->
+            <div class="form-group">
+                <label for="registration_fee">Registration Fee:</label>
+                <input type="number" id="registration_fee" name="registration_fee" step="0.01" placeholder="Enter registration fee" required>
+            </div>
+
+            <!-- Registration Number -->
+            <div class="form-group">
+                <label for="registration_number">Registration Number:</label>
+                <input type="number" id="registration_number" name="registration_number" placeholder="Enter registration number" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="4" placeholder="Enter tournament description" required></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+</body>
+</html>
