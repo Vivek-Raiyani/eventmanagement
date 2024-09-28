@@ -120,6 +120,16 @@
                 <input type="number" id="capacity" name="capacity" placeholder="Enter facility capacity" required>
             </div>
 
+            <div class="form-group">
+                <label for="sport">sport</label>
+                <select id="sport" name="sport">
+                    <option value="">-- Select Sport --</option>
+                    {% for sport in sports %}
+                        <option value="{{ sport.id }}">{{ sport.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Open Time -->
             <div class="form-group">
                 <label for="open_time">Open Time:</label>
@@ -151,6 +161,16 @@
                 <div class="image-preview" id="preview3"></div>
             </div>
 
+            <div class="form-group">
+    <label for="video">Video</label>
+    <!-- Change accept from image/* to video/* -->
+    <input type="file" id="video" name="video" accept="video/*" onchange="previewVideo(event, 'preview4')">
+    
+    <!-- Video preview container -->
+    <div class="video-preview" id="preview4"></div>
+</div>
+
+
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -174,6 +194,38 @@
                 reader.readAsDataURL(file);
             }
         }
+
+
+        function previewVideo(event, previewId) {
+    var previewContainer = document.getElementById(previewId);
+    
+    // Clear the existing content in the preview container
+    previewContainer.innerHTML = '';
+    
+    // Get the selected file
+    var file = event.target.files[0];
+    
+    if (file) {
+        // Create a video element
+        var videoElement = document.createElement('video');
+        videoElement.controls = true;
+        videoElement.width = 400; // Set desired width
+        videoElement.height = 300; // Set desired height
+
+        // Create a URL for the selected video file
+        var videoURL = URL.createObjectURL(file);
+
+        // Set the video source
+        videoElement.src = videoURL;
+
+        // Append the video to the preview container
+        previewContainer.appendChild(videoElement);
+    } else {
+        // Handle case when no file is selected
+        previewContainer.innerHTML = 'No video selected.';
+    }
+}
+
     </script>
 </body>
 </html>

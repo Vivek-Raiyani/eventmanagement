@@ -112,7 +112,6 @@ def manager(request):
 @user_passes_test(lambda u: u.is_authenticated and u.role == 'manager')
 def register_facility(request):
     sports = Sport.objects.all()  # Get available sports to display in the form
-    
     if request.method == 'POST':
         # Retrieve form data
         name = request.POST['name']
@@ -139,7 +138,8 @@ def register_facility(request):
             capacity=capacity,
             open_time=open_time,
             close_time=close_time,
-            sport=sport
+            sport=sport,
+            manager=request.user,
         )
 
         if image1:
