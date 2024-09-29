@@ -89,5 +89,5 @@ class Booking(models.Model):
         return f"Booking at {self.facility} by {self.user} on {self.booking_date}"
 
     class Meta:
-        unique_together = ('facility','slots', 'booking_date')  # Prevent double booking for the same slot
+        unique_together = ('facility','slots', 'booking_date','cancelled')  # Prevent double booking for the same slot
 

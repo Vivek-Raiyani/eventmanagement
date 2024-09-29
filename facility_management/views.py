@@ -1,6 +1,6 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import Booking, Facility, Maintainance, Sport, BookingSlot
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib.auth import login, authenticate,logout
@@ -69,14 +69,14 @@ def facility_detail(request, slug):
         print("date selected view")
         data = json.loads(request.body)  # request.body contains raw JSON data
         date = data.get('date', None) 
-        booked_slots=Booking.objects.filter(facility=facility,booking_date=date)
+        booked_slots=Booking.objects.filter(facility=facility,booking_date=date,cancelled=False)
         available_slots=BookingSlot.objects.filter(set_by=facility.manager)
         print(available_slots)
         available_slots = available_slots.exclude(id__in=booked_slots.values_list('slots__id', flat=True))
         print(available_slots)
 
         # Convert available slots to a list of time strings or IDs
-        slots_data = [slot.start_time for slot in available_slots]
+        slots_data = [{'id': slot.id, 'time': slot.start_time} for slot in available_slots]
 
         # Return the available slots in JSON format
         return JsonResponse({'slots': slots_data})
@@ -221,3 +221,82 @@ def update_booking(request, booking_id):
 def sport_list(request):
     Sports = Sport.objects.all()
     return render(request, 'sports.html', {'sports': Sports})
+
+'''
+def booking(request):
+    print("-----------------------")
+    if request.method == "POST":
+        try:
+            # Get the current user
+            user = request.user
+            print("-----------------------")
+            # Get the facility based on the slug from the form
+            facility = Facility.objects.get(id=request.POST["facility_id"])
+            print(facility)
+            # Get the booking slot for the given facility and slot ID
+            slot_id = request.POST["slot_id"]
+            slots = get_object_or_404(BookingSlot, set_by=facility.manager, id=slot_id)
+            print(slots)
+            # Get the booking date from the form
+            booking_date = request.POST.get("date")
+            
+            # Create a new booking object
+            booking = Booking(facility=facility, user=user, slots=slots, booking_date=booking_date)
+            print(booking)
+            # Save the booking
+            booking.save()
+
+            # Display success message
+            return redirect("profile")
+        except Exception as e:
+            print(e)
+    # Redirect in case of any error
+    return redirect("profile")
+
+'''
+
+def cancle(request,booking_id):
+    if request.method == "POST":
+        booking=Booking.objects.get(id=booking_id)
+        booking.cancelled=True
+        booking.reason=request.POST["reason"]
+        print(booking.cancelled)
+        booking.save()
+        return redirect("profile")
+    
+def booking(request):
+    if request.method == "POST":
+        try:
+            # Parse the JSON request body
+            data = json.loads(request.body)
+            
+            # Get the current user
+            user = request.user
+            
+            # Get the facility based on the ID from the form
+            facility = Facility.objects.get(id=data["facility_id"])
+            
+            # Get the booking slot for the given facility and slot ID
+            slot_id = data["slot_id"]
+            slots = get_object_or_404(BookingSlot, set_by=facility.manager, id=slot_id)
+            
+            # Get the booking date from the form
+            booking_date = data.get("date")
+            
+            # Create a new booking object
+            booking = Booking(facility=facility, user=user, slots=slots, booking_date=booking_date)
+            
+            # Save the booking
+            booking.save()
+            
+            # Return a success response in JSON format
+            return redirect('profile')
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    # If the request method is not POST, redirect to the profile page
+    return redirect("profile")
+
+        

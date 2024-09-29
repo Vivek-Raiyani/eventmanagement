@@ -339,10 +339,12 @@ function changeCalendarView(view) {
             // Add bookings for this slot and date
             const bookings = [];
             {% for booking in bookings %}
+            {% if booking.cancelled == False %}
             if ('{{ booking.booking_date|date:"Y-m-d" }}' === date.toISOString().split('T')[0] && 
                 '{{ booking.slots.start_time|time:"H:i A" }}' === slot) {
                 bookings.push(`<div class="booking" style="background-color:{% if booking.confirmed %}green{% else %}red{% endif %}">{{ booking.facility.name }}</div>`);
             }
+            {% endif %}
             {% endfor %}
             cell.innerHTML = bookings.join('');
         }

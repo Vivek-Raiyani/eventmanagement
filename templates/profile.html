@@ -50,6 +50,9 @@
         li {
             margin-bottom: 10px;
         }
+        .hidden {
+            display: none;  /* Hide elements with this class */
+        }
     </style>
 </head>
 <body>
@@ -63,36 +66,52 @@
     <section>
         <p>{{ user.first_name }} {{ user.last_name }}</p>
         <p>{{ user.email }}</p>
-
     </section>
 
     <section>
+      <h2>Booking Details</h2>
+      <hr>
         {% for book in booking %}
-        <h2>Booking Details</h2>
-        <ul>
-            <li>Event Name: {{ book.facility.name }}</li>
-            <li>Event Date: {{ book.booking_date }}</li>
-            <li>Event Time: {{ book.slots.start_time}}</li>
-        </ul>
+        {% if book.cancelled == False %}
+        <div>
+            <p><strong>Facility:</strong> {{ book.facility.name }}</p>
+            <p><strong>Booking Date:</strong> {{ book.booking_date }}</p>
+            <p><strong>Time Slot:</strong> {{ book.slots.start_time }} - {{ book.slots.end_time }}</p>
+            <p><strong>Current Status:</strong> {{ book.confirmed|yesno:"Confirmed,Pending,Rejected" }}</p>
+            <button class="btn btn-danger toggle_btn">Cancel</button>
+            <div class="container hidden my-4">  <!-- Initially hidden -->
+                <form action="{% url 'cancle' book.id %}" method="post">
+                    {% csrf_token %}
+                    <label for="reason">Reason for cancellation:</label>
+                    <input type="text" name="reason" placeholder="Enter reason for cancellation">
+                    <input type="submit" value="Cancel">
+                </form>
+            </div>
+        </div>
+        <hr>
+        {% endif %}
         {% endfor %}
-<!-- profile.html 
-    <section>
-        <h2>Skills</h2>
-        <ul>
-            <li>HTML5</li>
-            <li>CSS3</li>
-            <li>JavaScript</li>
-            <li>React</li>
-            <li>Node.js</li>
-        </ul>
     </section>
 
-    <section>
-        <h2>Contact</h2>
-        <p>Email: john.doe@example.com</p>
-        <p>LinkedIn: linkedin.com/in/johndoe</p>
-        <p>GitHub: github.com/johndoe</p>
-    </section>
--->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Select all buttons with the class 'toggle_btn'
+        const buttons = document.querySelectorAll('.toggle_btn');
+
+        // Loop through each button and add the event listener
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Find the container associated with the button (next sibling)
+                const container = btn.nextElementSibling;
+
+                // Toggle the 'hidden' class to show/hide the container
+                if (container.classList.contains('hidden')) {
+                    container.classList.remove('hidden');  // Show the container
+                } else {
+                    container.classList.add('hidden');  // Hide the container
+                }
+            });
+        });
+    </script>
 </body>
 </html>

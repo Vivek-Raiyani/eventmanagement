@@ -122,6 +122,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+
+function bookSlot(slotId, bookingDate) {
+    // Log the slot ID and date for debugging
+    console.log("Booking slot", slotId, "on date", bookingDate);
+    
+    // Fetch the booking data via POST request to the Django backend
+    fetch("{% url 'book' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // Send as JSON
+            'X-CSRFToken': '{{ csrf_token }}',  // Include the CSRF token for Django's protection
+        },
+        body: JSON.stringify({
+            slot_id: slotId,
+            facility_id: "{{ facility.id }}",  // Pass the facility ID from Django template
+            date: bookingDate
+        })
+    })
+    .then(response => {
+    if (response.ok) {
+        // Manually redirect after successful booking
+        window.location.href = "{% url 'profile' %}";
+    } else {
+        console.error("Booking failed", response.statusText);
+    }
+});
+}
     
     flatpickr("#datepicker", {
     dateFormat: "Y-m-d",
@@ -146,8 +173,24 @@
             // Check if slots are available
             if (slots.length > 0) {
                 // Create buttons for each available slot
-                const availableSlotsHtml = slots.map(slot => `<button class="btn btn-outline-primary m-1">${slot}</button>`).join('');
+                const availableSlotsHtml = slots.map(slot => 
+    `<button class="btn btn-outline-primary m-1 slot-button" name="${slot.id}" data-slot-id="${slot.id}">${slot.time}</button>`
+).join('');
+
+                //const availableSlotsHtml = slots.map(slot => `<button class="btn btn-outline-primary m-1 slot-button" name="${slot.id}" data-slot-id="${slot.id}">${slot}</button>`).join('');
+                //const availableSlotsHtml = slots.map(slot => `<button class="btn btn-outline-primary m-1 slot-button" name={{slot.id}} data-slot-id={{ slot.id }}>${slot}</button>`).join('');
                 document.getElementById('availableSlots').innerHTML = availableSlotsHtml;
+
+                document.querySelectorAll('.slot-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Get the selected slot's ID
+                        const selectedSlotId = this.getAttribute('data-slot-id');
+                        const selectedDate = dateStr;  // Selected date from the flatpickr input
+                        // Send the slot and date data to the backend
+                        bookSlot(selectedSlotId, selectedDate);
+                    });
+                });
+
             } else {
                 document.getElementById('availableSlots').innerHTML = '<p>No slots available for this date.</p>';
             }
@@ -157,7 +200,9 @@
             document.getElementById('availableSlots').innerHTML = '<p>Failed to load slots.</p>';
         });
     }
+
 });
+
 
 
     </script>
